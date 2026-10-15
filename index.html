@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Relation Closure Lab | DML Micro Project</title>
+<style>
+:root{--bg:#f4f7fb;--panel:#fff;--ink:#17233c;--muted:#60708a;--blue:#2257c7;--cyan:#e9f4ff;--line:#dce5f1;--green:#13845b;--orange:#b9690b;--shadow:0 12px 35px rgba(29,54,96,.08)}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 90% 0,#dceaff 0,transparent 35%),var(--bg);color:var(--ink);font:16px/1.55 Inter,Segoe UI,Arial,sans-serif}
+header{padding:42px 22px 38px;background:linear-gradient(125deg,#11244d,#214fc0 68%,#26a5c8);color:white}
+.wrap{max-width:1120px;margin:auto} .eyebrow{text-transform:uppercase;letter-spacing:.15em;font-size:.78rem;font-weight:800;opacity:.8}
+h1{font-size:clamp(2rem,4vw,3.4rem);line-height:1.08;margin:10px 0 14px;max-width:780px}
+header p{max-width:760px;color:#e3edff;font-size:1.08rem;margin:0}
+.chips{display:flex;gap:9px;flex-wrap:wrap;margin-top:23px}.chip{border:1px solid #ffffff65;background:#ffffff16;padding:6px 12px;border-radius:999px;font-size:.85rem}
+main{padding:26px 20px 60px}.grid{display:grid;grid-template-columns:1.1fr .9fr;gap:20px;align-items:start}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:23px;box-shadow:var(--shadow);margin-bottom:20px}
+h2{font-size:1.35rem;margin:0 0 8px}h3{font-size:1rem;margin:18px 0 8px}.muted{color:var(--muted);font-size:.94rem}
+label{display:block;font-weight:700;margin-bottom:6px}.inputrow{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+input,textarea,select{font:inherit;border:1px solid #cbd7e8;border-radius:10px;padding:10px 12px;background:#fff;color:var(--ink)}
+textarea{width:100%;min-height:80px;resize:vertical;font-family:ui-monospace,Consolas,monospace}
+button{border:0;border-radius:10px;background:var(--blue);color:#fff;padding:11px 15px;font-weight:800;cursor:pointer;transition:.15s}
+button:hover{filter:brightness(1.08);transform:translateY(-1px)}button.secondary{background:#e8eef8;color:#19355f}button.ghost{background:#edf8f5;color:#08734b}
+.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}.error{color:#b42318;font-weight:700;margin-top:8px}
+.resultgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}.stat{padding:13px;background:#f2f6fc;border-radius:12px}.stat b{font-size:1.4rem;display:block}.stat span{color:var(--muted);font-size:.82rem}
+.pairset{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0}.pair{font:600 .9rem ui-monospace,Consolas,monospace;background:#eaf1ff;border:1px solid #cddcff;border-radius:7px;padding:4px 8px}
+.matrix{border-collapse:separate;border-spacing:4px;margin:10px auto;max-width:100%}.matrix th{font-size:.82rem;color:var(--muted);padding:4px 7px}.matrix td{background:#f1f5fb;text-align:center;min-width:36px;height:34px;border-radius:7px;font-weight:800}.matrix td.one{background:#d7f5e7;color:#087348}.matrix td.added{background:#ffedc7;color:#874b00}
+.steps{counter-reset:s;display:grid;gap:10px}.step{padding:12px 13px;background:#f7f9fd;border-radius:10px;border-left:3px solid var(--blue)}.step b{display:block}
+footer{text-align:center;padding:26px;color:var(--muted);font-size:.9rem}
+code{background:#edf2fa;border-radius:4px;padding:2px 5px} .note{border-left:4px solid #e8a23b;padding:10px 13px;background:#fff7e9;border-radius:7px;color:#754b13;font-size:.9rem}
+@media(max-width:800px){.grid{grid-template-columns:1fr}.resultgrid{grid-template-columns:repeat(3,1fr)}.card{padding:18px}}@media(max-width:430px){.resultgrid{grid-template-columns:1fr}}
+</style></head>
+<body>
+<header><div class="wrap"><div class="eyebrow">Discrete Mathematics & Logic · Micro Project</div><h1>Relation Closure Lab</h1><p>Explore reflexive, symmetric and transitive closures of a relation on a finite set. Enter ordered pairs, run the algorithms, and compare the original relation with each closure.</p><div class="chips"><span class="chip">Set & Relation</span><span class="chip">Interactive Visualizer</span><span class="chip">Warshall’s Algorithm</span><span class="chip">Educational Demo</span></div></div></header>
+<main class="wrap">
+<div class="grid">
+<section>
+<div class="card">
+<h2>1. Define the relation</h2><p class="muted">Enter a finite set and relation pairs. Use commas between set elements and semicolons between ordered pairs.</p>
+<label for="setInput">Set A</label><input id="setInput" value="1, 2, 3, 4" style="width:100%">
+<label for="relInput" style="margin-top:12px">Relation R</label><textarea id="relInput">(1,2); (2,3); (3,1)</textarea>
+<div class="actions"><button onclick="calculate()">Calculate closures</button><button class="secondary" onclick="loadExample()">Load example</button><button class="secondary" onclick="clearAll()">Clear</button></div><div id="error" class="error"></div>
+</div>
+<div class="card"><h2>2. Closure results</h2><p class="muted">Pairs highlighted in amber were added by the closure operation.</p>
+<div class="resultgrid"><div class="stat"><b id="rCount">—</b><span>Original pairs</span></div><div class="stat"><b id="refCount">—</b><span>Reflexive closure</span></div><div class="stat"><b id="symCount">—</b><span>Symmetric closure</span></div></div>
+<h3>Original relation R</h3><div id="originalPairs" class="pairset"></div>
+<h3>Reflexive closure</h3><div id="refPairs" class="pairset"></div>
+<h3>Symmetric closure</h3><div id="symPairs" class="pairset"></div>
+<h3>Transitive closure</h3><div id="transPairs" class="pairset"></div>
+<div class="note">The transitive closure is computed by repeatedly adding (a,c) whenever (a,b) and (b,c) are present, until no new pairs can be added.</div>
+</div>
+</section>
+<section>
+<div class="card"><h2>3. Relation matrices</h2><p class="muted">Rows and columns follow the order of elements in set A. Green cells belong to the original relation; amber cells are newly added.</p>
+<h3>Original matrix M(R)</h3><div id="mOriginal"></div><h3>Reflexive closure matrix</h3><div id="mRef"></div><h3>Symmetric closure matrix</h3><div id="mSym"></div><h3>Transitive closure matrix</h3><div id="mTrans"></div>
+</div>
+<div class="card"><h2>4. What each closure guarantees</h2><div class="steps">
+<div class="step"><b>Reflexive closure</b>Every element relates to itself. Add all missing diagonal pairs (a,a).</div>
+<div class="step"><b>Symmetric closure</b>If (a,b) exists, then (b,a) must exist. Add the reverse of every pair.</div>
+<div class="step"><b>Transitive closure</b>If (a,b) and (b,c) exist, then (a,c) must exist. Repeat until stable.</div>
+</div><h3>Algorithm note</h3><p class="muted">For the transitive closure, the program uses the Boolean form of Warshall’s algorithm: for each intermediate vertex k, update reachability i→j when i→k and k→j are both true.</p></div>
+</section>
+</div></main>
+<footer>Discrete Mathematics & Logic · Academic demonstration only · No data is uploaded or stored</footer>
+<script>
+function parseInput(){
+ const els=document.getElementById('setInput').value.split(',').map(x=>x.trim()).filter(Boolean);
+ if(!els.length) throw Error('Enter at least one element in set A.');
+ if(new Set(els).size!==els.length) throw Error('Set A cannot contain duplicate elements.');
+ const raw=document.getElementById('relInput').value.trim();
+ const pairs=[];
+ if(raw){
+  const chunks=raw.split(';').map(s=>s.trim()).filter(Boolean);
+  for(const chunk of chunks){
+   const m=chunk.match(/^\(\s*([^,()]+)\s*,\s*([^,()]+)\s*\)$/);
+   if(!m) throw Error('Invalid pair "'+chunk+'". Use format (a,b), separated by semicolons.');
+   const a=m[1].trim(), b=m[2].trim();
+   if(!els.includes(a)||!els.includes(b)) throw Error('Pair ('+a+','+b+') uses an element not in set A.');
+   pairs.push([a,b]);
+  }
+ }
+ return {els,pairs};
+}
+const key=(a,b)=>a+'\\u0000'+b;
+function closure(els,pairs,type){
+ let set=new Set(pairs.map(([a,b])=>key(a,b)));
+ if(type==='ref') els.forEach(a=>set.add(key(a,a)));
+ if(type==='sym') Array.from(set).forEach(k=>{const [a,b]=k.split('\\u0000');set.add(key(b,a));});
+ if(type==='trans'){
+  // Boolean Warshall on adjacency matrix
+  const n=els.length, ix=new Map(els.map((x,i)=>[x,i]));
+  const m=Array.from({length:n},()=>Array(n).fill(false));
+  set.forEach(k=>{const [a,b]=k.split('\\u0000');m[ix.get(a)][ix.get(b)]=true;});
+  for(let k=0;k<n;k++)for(let i=0;i<n;i++)for(let j=0;j<n;j++)m[i][j]=m[i][j]||(m[i][k]&&m[k][j]);
+  set=new Set();for(let i=0;i<n;i++)for(let j=0;j<n;j++)if(m[i][j])set.add(key(els[i],els[j]));
+ }
+ return set;
+}
+function pairHTML(set,original){
+ if(!set.size)return '<span class="muted">∅ (empty relation)</span>';
+ return Array.from(set).map(k=>{const [a,b]=k.split('\\u0000');return '<span class="pair" style="'+(original.has(k)?'':'background:#ffedc7;border-color:#f0cf8a;color:#874b00')+'">('+a+', '+b+')</span>'}).join('');
+}
+function matrixHTML(els,set,orig){
+ let h='<table class="matrix"><tr><th></th>'+els.map(x=>'<th>'+x+'</th>').join('')+'</tr>';
+ els.forEach(a=>{h+='<tr><th>'+a+'</th>';els.forEach(b=>{let k=key(a,b),yes=set.has(k);h+='<td class="'+(yes?(orig.has(k)?'one':'added'):'')+'">'+(yes?'1':'0')+'</td>';});h+='</tr>';});return h+'</table>';
+}
+function calculate(){
+ try{
+  const {els,pairs}=parseInput();document.getElementById('error').textContent='';
+  const orig=new Set(pairs.map(([a,b])=>key(a,b))), ref=closure(els,pairs,'ref'), sym=closure(els,pairs,'sym'), trans=closure(els,pairs,'trans');
+  document.getElementById('rCount').textContent=orig.size;document.getElementById('refCount').textContent=ref.size;document.getElementById('symCount').textContent=sym.size;
+  document.getElementById('originalPairs').innerHTML=pairHTML(orig,orig);
+  document.getElementById('refPairs').innerHTML=pairHTML(ref,orig);
+  document.getElementById('symPairs').innerHTML=pairHTML(sym,orig);
+  document.getElementById('transPairs').innerHTML=pairHTML(trans,orig);
+  document.getElementById('mOriginal').innerHTML=matrixHTML(els,orig,orig);
+  document.getElementById('mRef').innerHTML=matrixHTML(els,ref,orig);
+  document.getElementById('mSym').innerHTML=matrixHTML(els,sym,orig);
+  document.getElementById('mTrans').innerHTML=matrixHTML(els,trans,orig);
+ }catch(e){document.getElementById('error').textContent=e.message;}
+}
+function loadExample(){document.getElementById('setInput').value='1, 2, 3, 4';document.getElementById('relInput').value='(1,2); (2,3); (3,1)';calculate();}
+function clearAll(){document.getElementById('setInput').value='a, b, c';document.getElementById('relInput').value='';calculate();}
+calculate();
+</script></body></html>
